@@ -269,10 +269,14 @@ void choose_ifname(char*dst)
 void show_ifnames() {
   IfInfo* list=get_ifnames();
   IfInfo* pinf;
-  printf("%s\n", "Available interfaces:");
-  for (pinf=list;pinf->name[0]; pinf++) {
-    printf("  %s\t(%s)\n", pinf->name, pinf->addr[0]?pinf->addr:"unassigned");
+  if (list) {
+    printf("%s\n", "Available interfaces:");
+    for (pinf=list;pinf->name[0]; pinf++) {
+      printf("  %s\t(%s)\n", pinf->name, pinf->addr[0]?pinf->addr:"unassigned");
+    }
+    free(list);
+  } else {
+    fprintf(stderr,"%s\n", "No interfaces found.");
   }
-  free(list);
 }
 
