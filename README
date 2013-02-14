@@ -1,0 +1,146 @@
+"says" (Stuff About Your System) is a small X application to show some
+information about your system's memory usage, CPU load and network 
+activity. It should at least be compatible with most x86 and x86_64
+Linux systems with a 2.6.0 or newer kernel.
+
+
+
+*** Building ***
+
+To build the program, just type "make"
+
+By default the build will use the FreeType and libXft libraries
+for font rendering, but if you would rather use the plain old- 
+fashioned X11 fonts, type "make XFT=0"
+
+If the compiler or linker complains about not being able to find
+something, you might need to edit the CFLAGS and LDFLAGS variables
+in the Makefile, or append EXTRA_CFLAGS and/or EXTRA_LDFLAGS
+to the make command line, for example:
+
+  % make EXTRA_CFLAGS=-I/usr/local/include/freetype2
+
+There is no "make install" so just copy the binary to somewhere 
+in your PATH, or run it from the current directory.
+
+
+
+*** Running ***
+
+There are three types of command line arguments, all of which
+are optional and can be given in any order:
+
+1) The name of the network interface to watch, for example
+   "eth0" or "ppp0". Note that the interface doesn't necessarily
+   need to exist when the program is started, which may be the case
+   for e.g. a ppp connection. If you don't specify an interface, the
+   program will try to guess which one of your existing interfaces
+   is the most interesting.
+
+2) A number specifying the font size. Some values will work, and 
+   some will not. One of 8,10,12,14,18,24 is probably a good choice.
+   This only works if you have the default font installed. (See the
+   note below about specifying a custom font.)
+
+3) A series of one or more letters, prefixed with a dash (-).
+   Acceptable letters are t,k,b,i,e,r,s,c,p,l,h.
+   Their meanings are:
+
+      t: place bar at top of screen
+      k: exclude clocK
+      b: exclude Bandwidth
+      i: exclude local IP address
+      e: exclude remote Endpoint address
+      r: exclude Ram usage
+      s: exclude Swap usage
+      c: exclude Cpu usage
+      p: exclude top Process info
+      l: list available interfaces and exit
+      h: show the help screen and exit.
+
+
+There are also three mouse actions:
+  Left-click to collapse/expand the bar.
+  Middle click to toggle top/bottom placement.
+  Right-click to terminate the program.
+
+
+A custom font can be specified using the environment variable "SAYS_FONTSPEC".
+
+If the program was compiled with FreeType support, you can specify the font
+using the standard fontconfig names (see "man fc-list"). If you didn't compile
+with FreeType, the font should be specified in X11 format, as shown by the
+"xlsfonts" or "xfontsel" applications, for example.
+
+Because the program uses a very primitive method for text layout, proportional 
+fonts might cause problems, using a monospaced font should give better results.
+
+The foreground and background colors can also be set with the "SAYS_FGCOLOR"
+and "SAYS_BGCOLOR" environment variables, using standard color names like "red"
+or "darkgrey"; or using "#RRGGBB" hexadecimal notation.
+
+
+
+*** Reading ***
+
+The information shown consists of:
+
+The current wall clock time.
+
+The current download and upload speed, in bytes per second.
+When the bytes per second falls below 100, the elapsed idle
+time is shown instead. If the bytes per second is over 1000,
+the display changes color. Green means that the activity is
+mostly downloading, red means it is mostly uploading.
+
+The next two fields show the local IP address of the
+current connection and its remote endpoint. If either of
+these can't be determined, both fields will be blank.
+
+After that, the amount of used/total RAM and SWAP space is
+displayed (in megabytes) along with the current CPU usage,
+as a percent.
+
+The ram, swap and cpu usage fields are also colorized,
+according to the following table:
+
+ 0% .. 10% :  dark-blue
+11% .. 20% :  blue
+21% .. 30% :  blue-green
+31% .. 40% :  green
+41% .. 50% :  yellow-green
+51% .. 60% :  yellow
+61% .. 70% :  yellow-orange
+71% .. 80% :  orange
+81% .. 90% :  red-orange
+91% ..100% :  red
+
+
+If the CPU usage exceeds 25% for more than a couple of
+seconds, the program using the most CPU time is also
+displayed, showing its PID, program name, and the percent
+of CPU it is using.
+
+
+
+*** Window manager issues ***
+
+The program tries to set itself up to run in a "panel" or "strut" style window,
+most standards-compliant window managers should recognize and respect the 
+"hints" given by the program. Openbox and Pekwm both handle things nicely, 
+but xfce/xfwm4 doesn't behave correctly, particularly with regard to maximizing
+windows. Fluxbox and IceWM will work, but you might get better results if "says"
+is positioned at the top of the screen. The tiny window manager "twm" doesn't 
+seem to understand the notion of a "panel" at all.
+
+Joe's window manager "jwm" works well if you tell it to "swallow" the program 
+into a tray by putting something like this in your ~/.jwmrc file:
+
+  <Tray x="0" y="-1" height="18" border="1" >
+    <Swallow name="says">says -t</Swallow>
+  </Tray>
+
+When using this trick, note that you need to start "says" with the -t option
+even if you position the JWM tray on the bottom of the screen.
+
+
