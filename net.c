@@ -245,6 +245,7 @@ void choose_ifname(char*dst)
   IfInfo* pinf;
   IfInfo* choice=NULL;
 
+  if (!list) return;
   for (pinf=list;pinf->name[0]; pinf++) {
     if (strcmp(pinf->name,"lo")!=0) { pinf->score++; }
   }
