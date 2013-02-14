@@ -203,32 +203,36 @@ static IfInfo* get_ifnames()
     IfInfo *pinf;
 
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-    int n=0;
-    int i=0;
-    int c;
-    while ((c=fgetc(f))!=EOF) { if (c=='\n') n++;}
-    result=(IfInfo*)calloc(n,sizeof(IfInfo));
-    fseek(f,0,SEEK_SET);
-    while (getline(&line, &count, f)>=0) {
-      char *p1=line;
-      char *p2=NULL;
-      while ( ' ' == *p1 ) {p1++;}
-      p2=strchr(p1,':');
-      if ((p2>p1)&&(i<n)) {
-        pinf=&result[i];
-        i++;
-        *p2='\0';
-        strncpy(pinf->name, p1, IF_NAMESIZE-1);
-        if ( sock >= 0 ) {
-          struct ifreq ifr;
-          strncpy( ifr.ifr_ifrn.ifrn_name, p1, IF_NAMESIZE-1 );
-          ifr.ifr_ifru.ifru_addr.sa_family = AF_INET;
-          get_ip_string(sock, SIOCGIFADDR, pinf->addr, &ifr);
+    if (sock>=0) {
+      int n=0;
+      int i=0;
+      int c;
+      while ((c=fgetc(f))!=EOF) { if (c=='\n') n++;}
+      if (n>0) {
+        result=(IfInfo*)calloc(n,sizeof(IfInfo));
+        fseek(f,0,SEEK_SET);
+        while (getline(&line, &count, f)>=0) {
+          char *p1=line;
+          char *p2=NULL;
+          while ( ' ' == *p1 ) {p1++;}
+          p2=strchr(p1,':');
+          if ((p2>p1)&&(i<n)) {
+            pinf=&result[i];
+            i++;
+            *p2='\0';
+            strncpy(pinf->name, p1, IF_NAMESIZE-1);
+            if ( sock >= 0 ) {
+              struct ifreq ifr;
+              strncpy( ifr.ifr_ifrn.ifrn_name, p1, IF_NAMESIZE-1 );
+              ifr.ifr_ifru.ifru_addr.sa_family = AF_INET;
+              get_ip_string(sock, SIOCGIFADDR, pinf->addr, &ifr);
+            }
+          }
         }
       }
+      close(sock);
     }
     fclose(f);
-    close(sock);
     return result;
   }
   return NULL;
