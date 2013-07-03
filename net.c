@@ -48,7 +48,7 @@ static int read_proc_net_dev(u_int64_t *vRx, u_int64_t *vTx)
     static int srch_len=0;
     prev_mtime=info.st_mtime;
     if (!srch_str[0]) {
-     snprintf(srch_str, sizeof(srch_str), "  %s:", curr_inf.if_name);
+     snprintf(srch_str, sizeof(srch_str)-1, "%s:", curr_inf.if_name);
      srch_len=strlen(srch_str);
     }
     f=fopen(ProcNetDev, "r");
@@ -57,7 +57,9 @@ static int read_proc_net_dev(u_int64_t *vRx, u_int64_t *vTx)
       return 0;
      }
     while (getline(&line, &count, f)>=0) {
-      if (strncmp(line, srch_str, srch_len)==0) {
+      char *p=line;
+      while (' ' == *p) {p++;}
+      if (strncmp(p, srch_str, srch_len)==0) {
         rv=1;
         break;
       }
