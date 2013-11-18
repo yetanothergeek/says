@@ -252,7 +252,7 @@ void choose_ifname(char*dst)
     if (strcmp(pinf->name,"lo")!=0) { pinf->score++; }
   }
   for (pinf=list;pinf->name[0]; pinf++) {
-    if (pinf->addr) { pinf->score++; }
+    if (pinf->addr[0]) { pinf->score++; }
   }
   int hi=0;
   for (pinf=list;pinf->name[0]; pinf++) {
