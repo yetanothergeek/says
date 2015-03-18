@@ -1,0 +1,1 @@
+"says" (Stuff About Your System) is a small X application to show some information about your system's memory usage, CPU load and network activity. It should at least be compatible with most x86 and x86\_64 Linux systems with a 2.6.0 or newer kernel.
