@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 
 #include "common.h"
 
@@ -157,9 +158,9 @@ static void get_top_proc(int really)
 }
 
 
-static u_int64_t get_cpu_usage()
+static uint64_t get_cpu_usage()
 {
-  u_int64_t rv=0;
+  uint64_t rv=0;
   char s[1024]="\0";
   char *p;
   FILE *f=fopen(ProcStat, "r");
@@ -177,8 +178,8 @@ static u_int64_t get_cpu_usage()
 
 static void get_cpu_info()
 {
-  static u_int64_t old_cpu_val=0;
-  u_int64_t new_val=get_cpu_usage();
+  static uint64_t old_cpu_val=0;
+  uint64_t new_val=get_cpu_usage();
   float diff= 1 - (((float)(new_val - old_cpu_val)) / 100.0 );
 
   diff=roundf(diff*100);

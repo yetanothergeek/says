@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <stdint.h>
 
 #include "common.h"
 
@@ -32,7 +33,7 @@ static void set_idle_message()
 
 static const char* ProcNetDev = "/proc/net/dev";
 
-static int read_proc_net_dev(u_int64_t *vRx, u_int64_t *vTx)
+static int read_proc_net_dev(uint64_t *vRx, uint64_t *vTx)
 {
   static int prev_mtime=0;
   struct stat info;
@@ -83,9 +84,9 @@ static int read_proc_net_dev(u_int64_t *vRx, u_int64_t *vTx)
 
 static int get_net_speed(int *rx_out, int *tx_out)
 {
-  static u_int64_t rx_prev=0;
-  static u_int64_t tx_prev=0;
-  u_int64_t rx_curr, tx_curr;
+  static uint64_t rx_prev=0;
+  static uint64_t tx_prev=0;
+  uint64_t rx_curr, tx_curr;
   int rv = read_proc_net_dev(&rx_curr, &tx_curr);
   *rx_out = rx_prev? (rx_curr-rx_prev) : 0;
   *tx_out = tx_prev? (tx_curr-tx_prev) : 0;
