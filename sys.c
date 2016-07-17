@@ -160,19 +160,24 @@ static void get_top_proc(int really)
 
 static uint64_t get_cpu_usage()
 {
-  uint64_t rv=0;
-  char s[1024]="\0";
-  char *p;
+  uint64_t idle=0;
+  static int counted=0;
   FILE *f=fopen(ProcStat, "r");
-
+  static char *line=NULL;
+  static size_t count=0;
   if (!f) { return 0; }
-  fread(s,sizeof(char), sizeof(s)-1, f);
+  while ((getline(&line, &count, f)>3)&&(strncmp(line,"cpu",3)==0)) {
+    if (line[3]==' ') {
+      sscanf(line+4, "%*d %*d %*d "LLU" %*s", &idle);
+    } else {
+      if (counted) {break;}
+      curr_inf.cpu_cnt++;
+    }
+  }
   fclose(f);
-  p=strchr(s, ' ');
-  if (!p) {return 0; }
-  while (' ' == *p) {p++; }
-  sscanf(p, "%*d %*d %*d "LLU" %*s", &rv );
-  return rv;
+  counted=1;
+  if (!curr_inf.cpu_cnt) {curr_inf.cpu_cnt=1;}
+  return idle/curr_inf.cpu_cnt;
 }
 
 
@@ -257,7 +262,7 @@ void get_mem_info()
   if (opts.show_ram || opts.show_swp) { get_mem_string(); }
   if (opts.show_hog && (check_top_proc>=3)) {
     check_top_proc = 1;
-    get_top_proc( curr_inf.cpu_pct > 25 );
+    get_top_proc( curr_inf.cpu_pct > (curr_inf.cpu_cnt>1?50:25) );
   } else check_top_proc++;
 }
 

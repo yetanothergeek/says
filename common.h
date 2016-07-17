@@ -38,6 +38,7 @@ extern Options opts;
 
 typedef struct {
   unsigned char cpu_pct;
+  unsigned char cpu_cnt;
   int ram_total, ram_used;
   int swap_total, swap_used;
   char bps_str[BPS_W]; /* bytes per second */
