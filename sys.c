@@ -255,11 +255,67 @@ static void get_mem_string()
 
 
 
+/* Some batteries report uAh, others uWh:  
+   filenames are charge_* or energy_* respectively.
+   So try opening charge_* first and if it fails, 
+   replace "charge" substring with "energy" and try again.
+*/
+FILE*open_charge_or_energy_file(char*filename) {
+  FILE*f=fopen(filename, "r");
+  if (!f) {
+    char*p=strrchr(filename,'/');
+    memcpy(p+1,"energy",6);
+    f=fopen(filename, "r");
+  }
+  return f;
+}
+
+
+
+void get_bat_str()
+{ 
+  static char *line=NULL;
+  static size_t count=0;
+  int charge_now=-1;
+  int charge_full_design=-1;
+  FILE *f=NULL;
+  curr_inf.bat_stat=' ';
+  static char nowfile[]=SysClassPwrSupBat0"/charge_now";
+  static char fullfile[]=SysClassPwrSupBat0"/charge_full_design";
+  memset(curr_inf.bat_str, ' ',sizeof(curr_inf.bat_str)-1 );
+  curr_inf.bat_str[sizeof(curr_inf.bat_str)-1]='\0';
+  f=open_charge_or_energy_file(fullfile);
+  if (!f) { return; }
+  if (getline(&line, &count, f)>=0) { sscanf(line, "%d", &charge_full_design); }
+  fclose(f);
+  f=open_charge_or_energy_file(nowfile);
+  if (!f) { return; }
+  if (getline(&line, &count, f)>=0) { sscanf(line, "%d", &charge_now); }
+  fclose(f);
+  f=fopen(SysClassPwrSupBat0"/status", "r");
+  if (f) {
+    if (getline(&line, &count, f)>=0) { 
+      switch (line[0]) {
+        case 'C': curr_inf.bat_stat='+'; break;
+        case 'D': curr_inf.bat_stat='-'; break;
+        default:  curr_inf.bat_stat=' '; break;
+      }
+    }
+    fclose(f);
+  }
+  curr_inf.bat_pct=roundf( ((float)charge_now / (float)charge_full_design) *100);
+  snprintf( curr_inf.bat_str, sizeof(curr_inf.bat_str)-1, "bat:%d%%%c%10s",
+              curr_inf.bat_pct, curr_inf.bat_stat, " " );
+}
+
+
+
 void get_mem_info()
 {
   static int check_top_proc=1;
   if (opts.show_cpu || opts.show_hog) { get_cpu_info(); }
   if (opts.show_ram || opts.show_swp) { get_mem_string(); }
+  if (opts.show_bat) { get_bat_str(); }
   if (opts.show_hog && (check_top_proc>=3)) {
     check_top_proc = 1;
     get_top_proc( curr_inf.cpu_pct > (curr_inf.cpu_cnt>1?50:25) );

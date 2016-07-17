@@ -81,7 +81,8 @@ static void set_tab_stops() {
   win.tabs.bps   = next_x(win.tabs.hms, opts.show_hms?HMS_W:0);
   win.tabs.lip   = next_x(win.tabs.bps, opts.show_bps?BPS_W:0);
   win.tabs.rip   = next_x(win.tabs.lip, opts.show_lip?LIP_W:0);
-  win.tabs.ram   = next_x(win.tabs.rip, opts.show_rip?RIP_W:0);
+  win.tabs.bat   = next_x(win.tabs.rip, opts.show_rip?RIP_W:0);
+  win.tabs.ram   = next_x(win.tabs.bat, opts.show_bat?BAT_W:0);
   win.tabs.swp   = next_x(win.tabs.ram, opts.show_ram?RAM_W:0);
   win.tabs.cpu   = next_x(win.tabs.swp, opts.show_swp?SWAP_W:0);
   win.tabs.proc  = next_x(win.tabs.cpu, opts.show_cpu?CPU_W:0);

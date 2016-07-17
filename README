@@ -1,7 +1,7 @@
 "says" (Stuff About Your System) is a small X application to show some
-information about your system's memory usage, CPU load and network 
-activity. It should at least be compatible with most x86 and x86_64
-Linux systems with a 2.6.0 or newer kernel.
+information about your system's memory usage, CPU load, network activity,
+and battery level. It should at least be compatible with most x86 and 
+x86_64 Linux systems with a 2.6.0 or newer kernel.
 
 
 
@@ -43,7 +43,7 @@ are optional and can be given in any order:
    note below about specifying a custom font.)
 
 3) A series of one or more letters, prefixed with a dash (-).
-   Acceptable letters are t,k,b,i,e,r,s,c,p,l,h.
+   Acceptable letters are t,k,b,i,e,a,r,s,c,p,l,h.
    Their meanings are:
 
       t: place bar at top of screen
@@ -51,6 +51,7 @@ are optional and can be given in any order:
       b: exclude Bandwidth
       i: exclude local IP address
       e: exclude remote Endpoint address
+      a: exclude bAttery charge level
       r: exclude Ram usage
       s: exclude Swap usage
       c: exclude Cpu usage
@@ -97,9 +98,9 @@ The next two fields show the local IP address of the
 current connection and its remote endpoint. If either of
 these can't be determined, both fields will be blank.
 
-After that, the amount of used/total RAM and SWAP space is
-displayed (in megabytes) along with the current CPU usage,
-as a percent.
+After that, the percent of battery charge is displayed, followed by
+the amount of used/total RAM and SWAP space (in megabytes) along
+with the current CPU usage, as a percent.
 
 The ram, swap and cpu usage fields are also colorized,
 according to the following table:
@@ -115,6 +116,10 @@ according to the following table:
 81% .. 90% :  red-orange
 91% ..100% :  red
 
+Coloring for the bat field is similar, but the values are inverted,
+that is, red means "low" and dark-blue means "full", etc.
+A plus sign after the bat value indicates the battery is charging, 
+a minus sign means it is discharging.
 
 If the CPU usage exceeds 25% for more than a couple of
 seconds, the program using the most CPU time is also

@@ -11,6 +11,8 @@
 # define DEFAULT_FONTSIZE "12"
 #endif
 
+#define SysClassPwrSupBat0 "/sys/class/power_supply/BAT0"
+
 enum { nsIdle, nsDownload, nsUpload, nsUnchanged } net_speed_status;
 
 typedef struct {
@@ -22,6 +24,7 @@ typedef struct {
   int show_cpu;
   int show_hog;
   int show_hms;
+  int show_bat;
   int start_at_top;
 } Options;
 
@@ -35,10 +38,13 @@ extern Options opts;
 #define SWAP_W 18
 #define PROC_W 64
 #define HMS_W 12
+#define BAT_W 12
 
 typedef struct {
   unsigned char cpu_pct;
   unsigned char cpu_cnt;
+  unsigned char bat_pct;
+  unsigned char bat_stat;
   int ram_total, ram_used;
   int swap_total, swap_used;
   char bps_str[BPS_W]; /* bytes per second */
@@ -48,6 +54,7 @@ typedef struct {
   char ram_str[RAM_W];
   char swap_str[SWAP_W];
   char proc_str[PROC_W];
+  char bat_str[BAT_W];
   char if_name[32];
   char hms_str[HMS_W];
 } SysInfo;

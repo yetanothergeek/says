@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <sys/stat.h>
 
 #include "common.h"
 #include "window.h"
@@ -130,6 +131,11 @@ void draw_mem_strings(int update)
     bg=set_color_from_pct(curr_inf.cpu_pct);
     draw_string(curr_inf.cpu_str, bg, win.tabs.cpu);
   }
+  if (opts.show_bat && ( (!update) || (curr_inf.bat_pct != prev_inf.bat_pct)
+          || (curr_inf.bat_stat != prev_inf.bat_stat) )) {
+    bg=set_color_from_pct(100-curr_inf.bat_pct);
+    draw_string(curr_inf.bat_str, bg, win.tabs.bat);
+  }
   if (opts.show_ram && ( (!update) || (curr_inf.ram_used != prev_inf.ram_used))) {
     bg=set_color_from_pct(percent(curr_inf.ram_used, curr_inf.ram_total));
     draw_string(curr_inf.ram_str, bg, win.tabs.ram);
@@ -242,6 +248,7 @@ Usage: %s [-tkbierscpl] [interface] [fontsize]\n\
   -b: exclude Bandwidth\n\
   -i: exclude local IP address\n\
   -e: exclude remote Endpoint address\n\
+  -a: exclude bAttery usage\n\
   -r: exclude Ram usage\n\
   -s: exclude Swap usage\n\
   -c: exclude Cpu usage\n\
@@ -285,6 +292,7 @@ int main(int argc, char *argv[])
   opts.show_cpu = 1;
   opts.show_hog = 1;
   opts.show_hms = 1;
+  opts.show_bat = 1;
   opts.start_at_top = 0;
   memset(&curr_inf, 0, sizeof(curr_inf));
   memset(&prev_inf, 0, sizeof(prev_inf));
@@ -316,6 +324,7 @@ int main(int argc, char *argv[])
             case 'c':{ opts.show_cpu=0; break; }
             case 'p':{ opts.show_hog=0; break; }
             case 'k':{ opts.show_hms=0; break; }
+            case 'a':{ opts.show_bat=0; break; }
             case 'h':{ usage(argv[0], 0); break; }
             case 'l':{ show_ifnames(); return 0; }
             default:{
@@ -345,7 +354,10 @@ int main(int argc, char *argv[])
       fprintf(stderr, "NOTE: Interface not specified, assuming \"%s\"\n", curr_inf.if_name);
     }
   }
-
+  if (opts.show_bat) {
+    struct stat st;
+    opts.show_bat=stat(SysClassPwrSupBat0"/",&st)==0;
+  }
   chdir("/proc");
   oldpwd=getenv("PWD");
   if (oldpwd) {oldpwd=strdup(oldpwd);}

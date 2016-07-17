@@ -33,7 +33,7 @@ typedef struct {
 } ScreenInfo;
 
 typedef struct {
-  unsigned short hms, bps, lip, rip, cpu, ram, swp, proc;
+  unsigned short hms, bps, lip, rip, cpu, ram, swp, proc, bat;
 } TabStops;
 
 
