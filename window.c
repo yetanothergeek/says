@@ -54,7 +54,8 @@ Atom atoms[ATOM_COUNT];
 void toggle_strut()
 {
   static uchar at_top=1;
-  CARD32 strut[12] = {0,0,0,0,0,0,0,0,0,0,0,0}; /* left, right, top, bottom */
+  long strut[12] = {0,0,0,0,0,0,0,0,0,0,0,0}; /* left, right, top, bottom */
+  int elem_size=(sizeof(strut[0]) / 4) / (sizeof(long) / 4);
   enum {
     STRUT_LEFT    = 0,
     STRUT_RIGHT   = 1,
@@ -69,8 +70,8 @@ void toggle_strut()
     strut[STRUT_BOTTOM] = win.height + 3;
     strut[11] = win.work_area.width;
   }
-  change_property(atoms[ai_NET_WM_STRUT], XA_CARDINAL, 32, &strut, 4 );
-  change_property(atoms[ai_NET_WM_STRUT_PARTIAL], XA_CARDINAL, 32, &strut, 12 );
+  change_property(atoms[ai_NET_WM_STRUT], XA_CARDINAL, 32, &strut, 4*elem_size );
+  change_property(atoms[ai_NET_WM_STRUT_PARTIAL], XA_CARDINAL, 32, &strut, 12*elem_size );
 
   XMoveResizeWindow( win.dpy, win.win, win.work_area.x,
                      at_top?win.work_area.y:(win.work_area.y+win.work_area.height)-win.height,
@@ -157,11 +158,11 @@ int get_work_area()
 
 
 typedef struct {
-  CARD32 flags;
-  CARD32 functions;
-  CARD32 decorations;
-  INT32 input_mode;
-  CARD32 status;
+  ulong flags;
+  ulong functions;
+  ulong decorations;
+  long input_mode;
+  ulong status;
 } MwmHints;
 
 
@@ -214,7 +215,7 @@ void create_window()
 
   mwm.flags= MWM_HINTS_DECORATIONS;   /* borderless motif hint */
   change_property( atoms[ai_MOTIF_WM_HINTS], atoms[ai_MOTIF_WM_HINTS], 32,
-                   &mwm, sizeof(MwmHints) / 4 );
+                   &mwm, (sizeof(MwmHints) / 4) / (sizeof(long) / 4) );
 
   size_hints.flags= PPosition;   /* tell the WM to obey the window position */
   change_property( XA_WM_NORMAL_HINTS,  XA_WM_SIZE_HINTS, 32, &size_hints,
