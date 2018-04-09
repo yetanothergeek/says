@@ -78,3 +78,4 @@ void draw_string(char *s, colornames bg, int bg_x);
 
 extern char *back_color;
 extern char *fore_color;
+extern char *app_name;

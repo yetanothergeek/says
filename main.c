@@ -11,6 +11,7 @@
 #define FONTSPEC_ENV "SAYS_FONTSPEC"
 #define BGCOLOR_ENV  "SAYS_BGCOLOR"
 #define FGCOLOR_ENV  "SAYS_FGCOLOR"
+#define APPNAME_ENV  "SAYS_APPNAME"
 
 Options opts;
 SysInfo curr_inf;
@@ -18,6 +19,8 @@ static SysInfo prev_inf;
 
 static char* oldpwd=NULL;
 static uchar collapsed=0;
+
+char* app_name=NULL;
 
 static void handle_press(int x, int y, int button)
 {
@@ -264,6 +267,7 @@ Environment variables:\n\
   "FONTSPEC_ENV": Sets a custom font\n\
   "BGCOLOR_ENV":  Sets base color\n\
   "FGCOLOR_ENV":  Sets text color for IP and clock\n\
+  "APPNAME_ENV":  Sets a custom window name\n\
 \n\
 ",
   app);
@@ -280,6 +284,7 @@ int main(int argc, char *argv[])
 
   back_color=getenv(BGCOLOR_ENV);
   fore_color=getenv(FGCOLOR_ENV);
+  app_name=getenv(APPNAME_ENV);
 
   win.height=18;
   win.top=4;

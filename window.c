@@ -186,6 +186,11 @@ void create_window()
                             XDefaultVisual(win.dpy, win.scr.id),
                             CWBackPixel | CWEventMask, &att );
 
+  if ( app_name && *app_name ) {
+    wmn.value=(uchar*)app_name;
+    wmn.nitems=strlen(app_name);
+    wmch.res_name=app_name;
+  }
   XSetWMName(win.dpy, win.win, &wmn);
   XSetWMIconName(win.dpy, win.win, &wmn);
   XSetClassHint(win.dpy, win.win, &wmch);
