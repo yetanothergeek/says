@@ -11,7 +11,7 @@
 # define DEFAULT_FONTSIZE "12"
 #endif
 
-#define SysClassPwrSupBat0 "/sys/class/power_supply/BAT0"
+void init_batfiles();
 
 enum { nsIdle, nsDownload, nsUpload, nsUnchanged } net_speed_status;
 

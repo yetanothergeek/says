@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <sys/stat.h>
+
 
 #include "common.h"
 #include "window.h"
@@ -359,10 +359,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, "NOTE: Interface not specified, assuming \"%s\"\n", curr_inf.if_name);
     }
   }
-  if (opts.show_bat) {
-    struct stat st;
-    opts.show_bat=stat(SysClassPwrSupBat0"/",&st)==0;
-  }
+  init_batfiles();
   chdir("/proc");
   oldpwd=getenv("PWD");
   if (oldpwd) {oldpwd=strdup(oldpwd);}

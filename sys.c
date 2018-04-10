@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include <sys/stat.h>
 
 #include "common.h"
 
@@ -22,6 +23,10 @@ static unsigned long prev_pid_count=0;
 static PidRec top_rec;
 static int cpu_total;
 static pid_t my_pid;
+
+static char bat_now[40];
+static char bat_full[48];
+static char bat_stat[36];
 
 
 static PidRec *get_pid_list()
@@ -254,21 +259,56 @@ static void get_mem_string()
 }
 
 
-
-/* Some batteries report uAh, others uWh:  
+/*
+   Search for and save names of battery-related files. On some systems
+   the battery folder is named BAT0, on other systems it's named BATT.
+   Not sure why, so try one and if it doesn't exist, try the other one.
+   Likewise, some batteries report uAh, others uWh:  
    filenames are charge_* or energy_* respectively.
    So try opening charge_* first and if it fails, 
-   replace "charge" substring with "energy" and try again.
+   replace charge_* with energy_* and try again.
 */
-FILE*open_charge_or_energy_file(char*filename) {
-  FILE*f=fopen(filename, "r");
-  if (!f) {
-    char*p=strrchr(filename,'/');
-    memcpy(p+1,"energy",6);
-    f=fopen(filename, "r");
+void init_batfiles()
+{
+  if (!opts.show_bat) return;
+  struct stat st;
+  char batdir[]="/sys/class/power_supply/BAT0/";
+  if (!(stat(batdir,&st)==0)) {
+    batdir[27]='T';
+    if (!(stat(batdir,&st)==0)) {
+      opts.show_bat=0;
+      return;
+    }
   }
-  return f;
+  strcpy(bat_stat,batdir);
+  strcat(bat_stat,"status");
+  if (stat(bat_stat,&st)!=0) {
+    opts.show_bat=0;
+    return;    
+  }
+  strcpy(bat_full,batdir);
+  strcat(bat_full,"charge_full_design");
+  if (stat(bat_full,&st)!=0) {
+    strcpy(bat_full,batdir);
+    strcat(bat_full,"energy_full_design");
+    if (stat(bat_full,&st)!=0) {
+      opts.show_bat=0;
+      return;    
+    }
+  }
+  strcpy(bat_now,batdir);
+  strcat(bat_now,"charge_now");
+  if (stat(bat_now,&st)!=0) {
+    strcpy(bat_now,batdir);
+    strcat(bat_now,"energy_now");
+    if (stat(bat_now,&st)!=0) {
+      opts.show_bat=0;
+      return;    
+    }
+    
+  }
 }
+
 
 
 
@@ -280,19 +320,17 @@ void get_bat_str()
   int charge_full_design=-1;
   FILE *f=NULL;
   curr_inf.bat_stat=' ';
-  static char nowfile[]=SysClassPwrSupBat0"/charge_now";
-  static char fullfile[]=SysClassPwrSupBat0"/charge_full_design";
   memset(curr_inf.bat_str, ' ',sizeof(curr_inf.bat_str)-1 );
   curr_inf.bat_str[sizeof(curr_inf.bat_str)-1]='\0';
-  f=open_charge_or_energy_file(fullfile);
+  f=fopen(bat_full,"r");
   if (!f) { return; }
   if (getline(&line, &count, f)>=0) { sscanf(line, "%d", &charge_full_design); }
   fclose(f);
-  f=open_charge_or_energy_file(nowfile);
+  f=fopen(bat_now,"r");
   if (!f) { return; }
   if (getline(&line, &count, f)>=0) { sscanf(line, "%d", &charge_now); }
   fclose(f);
-  f=fopen(SysClassPwrSupBat0"/status", "r");
+  f=fopen(bat_stat, "r");
   if (f) {
     if (getline(&line, &count, f)>=0) { 
       switch (line[0]) {
