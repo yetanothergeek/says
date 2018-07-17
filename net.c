@@ -35,19 +35,14 @@ static const char* ProcNetDev = "/proc/net/dev";
 
 static int read_proc_net_dev(uint64_t *vRx, uint64_t *vTx)
 {
-  static int prev_mtime=0;
-  struct stat info;
   int rv=0;
   *vRx=0;
   *vTx=0;
-  stat(ProcNetDev, &info);
-  if ( info.st_mtime != prev_mtime ) {
     FILE *f;
     static char *line=NULL;
     static size_t count=0;
     static char srch_str[32]="\0";
     static int srch_len=0;
-    prev_mtime=info.st_mtime;
     if (!srch_str[0]) {
      snprintf(srch_str, sizeof(srch_str)-1, "%s:", curr_inf.if_name);
      srch_len=strlen(srch_str);
@@ -76,7 +71,6 @@ static int read_proc_net_dev(uint64_t *vRx, uint64_t *vTx)
           vRx, vTx );
       }
     }
-  }
   return rv;
 }
 
