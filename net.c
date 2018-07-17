@@ -38,39 +38,39 @@ static int read_proc_net_dev(uint64_t *vRx, uint64_t *vTx)
   int rv=0;
   *vRx=0;
   *vTx=0;
-    FILE *f;
-    static char *line=NULL;
-    static size_t count=0;
-    static char srch_str[32]="\0";
-    static int srch_len=0;
-    if (!srch_str[0]) {
-     snprintf(srch_str, sizeof(srch_str)-1, "%s:", curr_inf.if_name);
-     srch_len=strlen(srch_str);
+  FILE *f;
+  static char *line=NULL;
+  static size_t count=0;
+  static char srch_str[32]="\0";
+  static int srch_len=0;
+  if (!srch_str[0]) {
+   snprintf(srch_str, sizeof(srch_str)-1, "%s:", curr_inf.if_name);
+   srch_len=strlen(srch_str);
+  }
+  f=fopen(ProcNetDev, "r");
+  if ( NULL == f ) {
+    fprintf(stderr, "Can't read %s\n", ProcNetDev);
+    return 0;
+  }
+  while (getline(&line, &count, f)>=0) {
+    char *p=line;
+    while (' ' == *p) {p++;}
+    if (strncmp(p, srch_str, srch_len)==0) {
+      rv=1;
+      break;
     }
-    f=fopen(ProcNetDev, "r");
-    if ( NULL == f ) {
-      fprintf(stderr, "Can't read %s\n", ProcNetDev);
-      return 0;
-     }
-    while (getline(&line, &count, f)>=0) {
-      char *p=line;
+  }
+  fclose(f);
+  if (rv) {
+    char *p=strchr(line, ':');
+    if (p) {
+      p++;
       while (' ' == *p) {p++;}
-      if (strncmp(p, srch_str, srch_len)==0) {
-        rv=1;
-        break;
-      }
+      sscanf( p,
+        LLU" %*d %*d %*d %*d %*d %*d %*d "LLU" %*d %*d %*d %*d %*d %*d %*d",
+        vRx, vTx );
     }
-    fclose(f);
-    if (rv) {
-      char *p=strchr(line, ':');
-      if (p) {
-        p++;
-        while (' ' == *p) {p++;}
-        sscanf( p,
-          LLU" %*d %*d %*d %*d %*d %*d %*d "LLU" %*d %*d %*d %*d %*d %*d %*d",
-          vRx, vTx );
-      }
-    }
+  }
   return rv;
 }
 
