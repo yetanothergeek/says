@@ -273,12 +273,15 @@ void init_batfiles()
   if (!opts.show_bat) return;
   struct stat st;
   char batdir[]="/sys/class/power_supply/BAT0/";
-  if (!(stat(batdir,&st)==0)) {
-    batdir[27]='T';
-    if (!(stat(batdir,&st)==0)) {
-      opts.show_bat=0;
-      return;
-    }
+  static const char batchars[]="T0123456789";
+  const char* batchar;
+  for (batchar=batchars; *batchar; batchar++) {
+    batdir[27]=*batchar;
+    if (stat(batdir,&st)==0) { break; }
+  }
+  if (*batchar==0) {
+    opts.show_bat=0;
+    return;
   }
   strcpy(bat_stat,batdir);
   strcat(bat_stat,"status");
