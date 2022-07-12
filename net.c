@@ -11,6 +11,7 @@
 #include "common.h"
 
 
+NetSpeedStatus net_speed_status;
 
 typedef char ipstr[IP_NAMESIZE];
 static unsigned int idle_secs;

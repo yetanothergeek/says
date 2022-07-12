@@ -13,7 +13,9 @@
 
 void init_batfiles();
 
-enum { nsIdle, nsDownload, nsUpload, nsUnchanged } net_speed_status;
+typedef enum { nsIdle, nsDownload, nsUpload, nsUnchanged } NetSpeedStatus;
+
+extern NetSpeedStatus net_speed_status;
 
 typedef struct {
   int show_bps;
