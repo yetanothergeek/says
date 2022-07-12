@@ -287,10 +287,10 @@ void init_batfiles()
     return;    
   }
   strcpy(bat_full,batdir);
-  strcat(bat_full,"charge_full_design");
+  strcat(bat_full,"charge_full");
   if (stat(bat_full,&st)!=0) {
     strcpy(bat_full,batdir);
-    strcat(bat_full,"energy_full_design");
+    strcat(bat_full,"energy_full");
     if (stat(bat_full,&st)!=0) {
       opts.show_bat=0;
       return;    
